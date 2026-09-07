@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { weddingData } from '../data/invitation';
 import { Calendar } from 'lucide-react';
-import { ChocolateConfettiCanvas } from './ChocolateConfettiCanvas';
 import { Toast } from './Toast';
 
-export const Invitation: React.FC = () => {
+interface InvitationProps {
+  onScratchStart?: () => void;
+}
+
+export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
   const [isScratched, setIsScratched] = useState(false);
   const [scratchStarted, setScratchStarted] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
@@ -36,12 +39,12 @@ export const Invitation: React.FC = () => {
       ctx.fillRect(0, 0, width, height);
 
       // Gold shimmer border inside
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
       ctx.lineWidth = 2;
       ctx.strokeRect(10, 10, width - 20, height - 20);
 
       // Golden foil decorative stars
-      ctx.fillStyle = 'rgba(251, 240, 185, 0.25)';
+      ctx.fillStyle = 'rgba(251, 240, 185, 0.3)';
       for (let i = 0; i < 35; i++) {
         const x = Math.random() * width;
         const y = Math.random() * height;
@@ -83,6 +86,7 @@ export const Invitation: React.FC = () => {
 
     if (!scratchStarted) {
       setScratchStarted(true);
+      onScratchStart?.();
     }
 
     // Check scratch percentage
@@ -148,13 +152,14 @@ export const Invitation: React.FC = () => {
   const revealAll = () => {
     setIsScratched(true);
     setScratchStarted(true);
+    onScratchStart?.();
   };
 
   // Google Calendar URL
   const getGoogleCalendarUrl = () => {
     const title = encodeURIComponent(`${weddingData.groom.firstName} & ${weddingData.bride.firstName}'s Wedding`);
     const details = encodeURIComponent(
-      `Celebrating the wedding of ${weddingData.groom.firstName} & ${weddingData.bride.firstName} at ${weddingData.venue.name}, ${weddingData.venue.city}.`
+      `Celebrating the wedding of ${weddingData.groom.firstName} (${weddingData.groom.parentTitle}) & ${weddingData.bride.firstName} (${weddingData.bride.parentTitle}) at ${weddingData.venue.name}, ${weddingData.venue.city}.`
     );
     const location = encodeURIComponent(`${weddingData.venue.fullAddress}`);
     const dates = '20261122T060000Z/20261122T180000Z';
@@ -209,15 +214,12 @@ export const Invitation: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '3.5rem 1.25rem',
-        background: 'linear-gradient(180deg, #F9F4EE 0%, #F1E5D8 45%, #E5D2C0 100%)',
+        background: 'linear-gradient(180deg, #F9F4EE 0%, #F1E5D8 45%, #ECE1D4 100%)',
         color: '#2A1F18',
         overflow: 'hidden',
         boxSizing: 'border-box'
       }}
     >
-      {/* Falling Chocolate & Gold Particles System from 2nd photo */}
-      <ChocolateConfettiCanvas active={scratchStarted} />
-
       <div
         style={{
           position: 'relative',
@@ -296,7 +298,8 @@ export const Invitation: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '2rem 1.25rem',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}
         >
           {/* Inner Heart Content */}
@@ -395,7 +398,7 @@ export const Invitation: React.FC = () => {
                 bottom: '10px',
                 right: '12px',
                 zIndex: 5,
-                background: 'rgba(255, 255, 255, 0.85)',
+                background: 'rgba(255, 255, 255, 0.88)',
                 border: '1px solid #703E2D',
                 borderRadius: '9999px',
                 padding: '3px 10px',
@@ -411,7 +414,7 @@ export const Invitation: React.FC = () => {
           )}
         </div>
 
-        {/* Rich Chocolate SAVE THE DATE Button from 2nd photo */}
+        {/* Rich Chocolate SAVE THE DATE Button */}
         <button
           onClick={() => {
             setToastMessage({

@@ -49,73 +49,91 @@ export const Gallery: React.FC = () => {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '12px',
+          gap: '14px',
           maxWidth: '520px',
           margin: '0 auto'
         }}
       >
-        {weddingData.gallery.map((photo, idx) => (
-          <div
-            key={photo.id}
-            onClick={() => openLightbox(idx)}
-            className={`reveal-on-scroll ${idx % 2 === 0 ? 'reveal-in-left' : 'reveal-in-right'}`}
-            style={{
-              position: 'relative',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              cursor: 'pointer',
-              border: '1px solid rgba(212, 175, 55, 0.3)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
-              aspectRatio: photo.aspect === 'landscape' ? '16/10' : photo.aspect === 'portrait' ? '4/5' : '1/1',
-              gridColumn: photo.aspect === 'landscape' && idx === 1 ? 'span 2' : 'span 1',
-              transition: 'transform 0.4s ease, box-shadow 0.4s ease'
-            }}
-          >
-            <img
-              src={photo.url}
-              alt={photo.caption}
-              loading="lazy"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-                transition: 'transform 0.4s ease'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
-            />
+        {weddingData.gallery.map((photo, idx) => {
+          // Centering the hero photo 'Cherished smiles and golden memories' (idx === 0) across the full width
+          const isHeroCentered = idx === 0;
+          const isFullWidthLandscape = photo.aspect === 'landscape' && idx === 1;
 
-            {/* Hover / Tap Overlay */}
+          return (
             <div
+              key={photo.id}
+              onClick={() => openLightbox(idx)}
+              className={`reveal-on-scroll ${isHeroCentered ? 'reveal-scale' : idx % 2 === 0 ? 'reveal-in-left' : 'reveal-in-right'}`}
               style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, transparent 40%, rgba(5, 8, 15, 0.85) 100%)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                padding: '12px',
-                opacity: 0.9
+                position: 'relative',
+                borderRadius: '18px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                border: isHeroCentered
+                  ? '1.5px solid rgba(212, 175, 55, 0.55)'
+                  : '1px solid rgba(212, 175, 55, 0.3)',
+                boxShadow: isHeroCentered
+                  ? '0 12px 30px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.2)'
+                  : '0 8px 20px rgba(0,0,0,0.4)',
+                aspectRatio: isHeroCentered
+                  ? '4/4.5'
+                  : photo.aspect === 'landscape'
+                  ? '16/10'
+                  : photo.aspect === 'portrait'
+                  ? '4/5'
+                  : '1/1',
+                gridColumn: isHeroCentered || isFullWidthLandscape ? 'span 2' : 'span 1',
+                transition: 'transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-serif-body)',
-                    fontSize: '0.85rem',
-                    color: '#FFF6D0',
-                    lineHeight: 1.2,
-                    textShadow: '0 1px 4px rgba(0,0,0,0.8)'
-                  }}
-                >
-                  {photo.caption}
-                </p>
-                <ZoomIn size={16} color="#D4AF37" style={{ flexShrink: 0, marginLeft: '6px' }} />
+              <img
+                src={photo.url}
+                alt={photo.caption}
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: isHeroCentered ? 'cover' : 'cover',
+                  objectPosition: isHeroCentered ? 'center 20%' : 'center',
+                  display: 'block',
+                  transition: 'transform 0.5s ease'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+              />
+
+              {/* Hover / Tap Overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(180deg, transparent 40%, rgba(5, 8, 15, 0.88) 100%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  padding: isHeroCentered ? '16px 14px' : '12px',
+                  opacity: 0.95
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p
+                    style={{
+                      fontFamily: isHeroCentered ? 'var(--font-serif-title)' : 'var(--font-serif-body)',
+                      fontSize: isHeroCentered ? '0.95rem' : '0.85rem',
+                      fontWeight: isHeroCentered ? 600 : 400,
+                      color: '#FFF6D0',
+                      lineHeight: 1.25,
+                      textShadow: '0 2px 6px rgba(0,0,0,0.9)'
+                    }}
+                  >
+                    {photo.caption}
+                  </p>
+                  <ZoomIn size={17} color="#D4AF37" style={{ flexShrink: 0, marginLeft: '8px' }} />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox Modal */}

@@ -10,7 +10,7 @@ interface Particle {
   angularSpeed: number;
   color: string;
   opacity: number;
-  shape: 'circle' | 'rod' | 'heart' | 'dot';
+  shape: 'circle' | 'rod' | 'heart' | 'dot' | 'sparkle';
   aspectRatio: number;
   swingOffset: number;
   swingSpeed: number;
@@ -24,25 +24,30 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animIdRef = useRef<number | null>(null);
+  const intensityRef = useRef<number>(1.0);
 
   useEffect(() => {
+    if (!active) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const parent = canvas.parentElement;
+    let width = (canvas.width = parent ? parent.clientWidth : window.innerWidth);
+    let height = (canvas.height = parent ? parent.clientHeight : window.innerHeight * 2);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      const p = canvas.parentElement;
+      width = canvas.width = p ? p.clientWidth : window.innerWidth;
+      height = canvas.height = p ? p.clientHeight : window.innerHeight * 2;
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Warm chocolate, terracotta, caramel, rose gold, and cream palette matching photo 2
+    // Warm luxury palette: Chocolate, terracotta, cinnamon bronze, rose gold, shimmer gold, champagne
     const palette = [
       '#63321F', // Deep chocolate
       '#783E28', // Rich cocoa
@@ -51,46 +56,63 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
       '#D49B80', // Soft rosy bronze
       '#E8C6B5', // Creamy mocha
       '#F7E9E1', // Ivory cream
-      '#D4AF37', // Shimmer gold
-      '#F0D290'  // Pale champagne
+      '#D4AF37', // Royal gold
+      '#F0D290', // Pale champagne
+      '#FFE58F', // Radiant gold highlight
+      '#FFFDF0'  // Pure sparkling gold
     ];
 
-    const shapes: ('circle' | 'rod' | 'heart' | 'dot')[] = [
+    const shapes: ('circle' | 'rod' | 'heart' | 'dot' | 'sparkle')[] = [
       'circle', 'circle', 'circle',
       'rod', 'rod',
       'heart',
-      'dot', 'dot'
+      'dot', 'dot',
+      'sparkle', 'sparkle'
     ];
 
-    const createParticle = (startY = -20): Particle => {
+    const createParticle = (startY = -20, isBurst = false): Particle => {
       const shape = shapes[Math.floor(Math.random() * shapes.length)];
-      let size = Math.random() * 14 + 10; // Large particles
-      if (shape === 'dot') size = Math.random() * 6 + 4;
-      if (shape === 'rod') size = Math.random() * 16 + 12;
-      if (shape === 'heart') size = Math.random() * 12 + 10;
+      let size = Math.random() * 14 + 8;
+      if (shape === 'dot') size = Math.random() * 6 + 3;
+      if (shape === 'rod') size = Math.random() * 18 + 10;
+      if (shape === 'heart') size = Math.random() * 14 + 9;
+      if (shape === 'sparkle') size = Math.random() * 10 + 6;
+
+      // Burst particles have higher initial velocity
+      const speedY = isBurst
+        ? Math.random() * 4.5 + 2.8
+        : Math.random() * 1.8 + 1.1;
+
+      const speedX = isBurst
+        ? (Math.random() - 0.5) * 3.5
+        : (Math.random() - 0.5) * 0.9;
 
       return {
         x: Math.random() * width,
         y: startY,
         size,
-        speedY: Math.random() * 1.8 + 1.2,
-        speedX: (Math.random() - 0.5) * 0.8,
+        speedY,
+        speedX,
         angle: Math.random() * Math.PI * 2,
-        angularSpeed: (Math.random() - 0.5) * 0.04,
+        angularSpeed: (Math.random() - 0.5) * 0.06,
         color: palette[Math.floor(Math.random() * palette.length)],
-        opacity: Math.random() * 0.35 + 0.65,
+        opacity: Math.random() * 0.4 + 0.6,
         shape,
         aspectRatio: Math.random() * 0.5 + 0.75,
         swingOffset: Math.random() * 100,
-        swingSpeed: Math.random() * 0.03 + 0.015
+        swingSpeed: Math.random() * 0.035 + 0.015
       };
     };
 
-    // Initialize initial shower
-    const totalParticles = 65;
+    // 1. Massive initial burst wave on scratch! (160+ particles showering down together)
+    const initialBurstCount = 175;
     particlesRef.current = [];
-    for (let i = 0; i < totalParticles; i++) {
-      particlesRef.current.push(createParticle(Math.random() * height * 0.8));
+    intensityRef.current = 1.0;
+
+    for (let i = 0; i < initialBurstCount; i++) {
+      // Stagger burst from upper third downwards so screen fills with a grand cascade
+      const startY = Math.random() * (height * 0.45) - 30;
+      particlesRef.current.push(createParticle(startY, true));
     }
 
     let time = 0;
@@ -99,10 +121,19 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
       c.beginPath();
       const topCurveHeight = size * 0.3;
       c.moveTo(0, topCurveHeight);
-      // Left curve
       c.bezierCurveTo(-size / 2, -size / 3, -size, topCurveHeight, 0, size);
-      // Right curve
       c.bezierCurveTo(size, topCurveHeight, size / 2, -size / 3, 0, topCurveHeight);
+      c.fill();
+    };
+
+    const drawSparkle = (c: CanvasRenderingContext2D, size: number) => {
+      c.beginPath();
+      c.moveTo(0, -size);
+      c.quadraticCurveTo(0, 0, size, 0);
+      c.quadraticCurveTo(0, 0, 0, size);
+      c.quadraticCurveTo(0, 0, -size, 0);
+      c.quadraticCurveTo(0, 0, 0, -size);
+      c.closePath();
       c.fill();
     };
 
@@ -110,17 +141,31 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
       ctx.clearRect(0, 0, width, height);
       time += 0.025;
 
-      const particles = particlesRef.current;
+      // Smoothly taper off intensity over time (grand burst -> gradually fewer particles)
+      if (intensityRef.current > 0.22) {
+        intensityRef.current *= 0.994; // gradual decay
+      }
 
-      for (let i = 0; i < particles.length; i++) {
+      const particles = particlesRef.current;
+      const targetActiveCount = Math.max(30, Math.floor(initialBurstCount * intensityRef.current));
+
+      for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
 
         p.y += p.speedY;
-        p.x += Math.sin(time + p.swingOffset) * 0.9 + p.speedX;
+        p.x += Math.sin(time + p.swingOffset) * (0.8 + intensityRef.current * 0.4) + p.speedX;
         p.angle += p.angularSpeed;
 
-        if (p.y > height + 30) {
-          particles[i] = createParticle(-20);
+        // When particle falls below countdown boundary
+        if (p.y > height + 25) {
+          // If we have more than current target intensity, remove extra particles to create the "thoda kam fir kam" effect
+          if (particles.length > targetActiveCount) {
+            particles.splice(i, 1);
+            continue;
+          } else {
+            // Respawn at top with gentler speed as intensity decreases
+            particles[i] = createParticle(-20, false);
+          }
         }
 
         ctx.save();
@@ -145,6 +190,9 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
         } else if (p.shape === 'heart') {
           ctx.scale(flipY * 0.6 + 0.4, 1);
           drawHeart(ctx, p.size);
+        } else if (p.shape === 'sparkle') {
+          ctx.scale(flipY * 0.5 + 0.5, flipY * 0.5 + 0.5);
+          drawSparkle(ctx, p.size);
         }
 
         ctx.restore();
@@ -167,12 +215,15 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
     <canvas
       ref={canvasRef}
       style={{
-        position: 'fixed',
-        inset: 0,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
-        zIndex: 9999,
-        width: '100vw',
-        height: '100vh'
+        zIndex: 2,
+        maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
       }}
     />
   );

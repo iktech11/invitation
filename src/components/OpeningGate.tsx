@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import gsap from 'gsap';
-import { Sparkles } from 'lucide-react';
 
 interface OpeningGateProps {
   onOpenComplete: () => void;
@@ -11,10 +10,9 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const leftDoorRef = useRef<HTMLDivElement>(null);
   const rightDoorRef = useRef<HTMLDivElement>(null);
-  const bowContainerRef = useRef<HTMLDivElement>(null);
-  const promptRef = useRef<HTMLDivElement>(null);
   const lightGlowRef = useRef<HTMLDivElement>(null);
-  const palaceAuraRef = useRef<HTMLDivElement>(null);
+  const centerBeamRef = useRef<HTMLDivElement>(null);
+  const promptBadgeRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
     if (isOpen) return;
@@ -29,41 +27,32 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
       }
     });
 
-    // 1. Untie & burst the satin bow & fade the prompt
-    tl.to(promptRef.current, {
+    // 1. Fade prompt highlight
+    tl.to(promptBadgeRef.current, {
       opacity: 0,
-      y: 20,
-      duration: 0.4,
+      scale: 0.9,
+      duration: 0.35,
       ease: 'power2.in'
     })
-    .to(bowContainerRef.current, {
-      scale: 1.35,
-      opacity: 0,
-      rotation: 15,
-      filter: 'blur(10px)',
-      duration: 0.7,
-      ease: 'power3.inOut'
-    }, '-=0.2')
-    // 2. Light flare burst from behind gate
+    // 2. Center beam & radiant flare burst
     .to(lightGlowRef.current, {
       opacity: 1,
-      scale: 2.2,
-      duration: 0.8,
+      scale: 3.5,
+      duration: 0.9,
       ease: 'power2.out'
+    }, '-=0.2')
+    .to(centerBeamRef.current, {
+      opacity: 0,
+      duration: 0.35
     }, '-=0.5')
-    .to(palaceAuraRef.current, {
-      opacity: 0.9,
-      duration: 1.0,
-      ease: 'power2.out'
-    }, '-=0.6')
-    // 3. Doors swing open in 3D perspective
+    // 3. 3D Swing open both left and right doors
     .to(leftDoorRef.current, {
       rotateY: -115,
       x: -60,
       opacity: 0,
       duration: 1.8,
       ease: 'power3.inOut'
-    }, '-=0.6')
+    }, '-=0.7')
     .to(rightDoorRef.current, {
       rotateY: 115,
       x: 60,
@@ -71,303 +60,264 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
       duration: 1.8,
       ease: 'power3.inOut'
     }, '-=1.8')
-    // 4. Smoothly fade out the entire gate overlay
+    // 4. Fade gate backdrop smoothly
     .to(containerRef.current, {
       opacity: 0,
-      duration: 0.6,
+      duration: 0.55,
       ease: 'power2.inOut'
-    }, '-=0.5');
+    }, '-=0.4');
   };
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden select-none"
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden select-none cursor-pointer"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
+        right: 0,
+        bottom: 0,
+        width: '100vw',
         height: '100dvh',
-        backgroundColor: '#070B14',
-        perspective: '1400px',
-        zIndex: 9999
+        backgroundColor: '#02050D',
+        perspective: '1600px',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
       onClick={handleOpen}
       onTouchStart={(e) => {
-        // Prevent default double-tap zoom, trigger opening
         e.currentTarget.style.cursor = 'grabbing';
       }}
     >
-      {/* Background Palace Night Silhouette Glow */}
+      {/* Dark Ambient Vignette Background */}
       <div
-        ref={palaceAuraRef}
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(circle at 50% 45%, rgba(212, 175, 55, 0.28) 0%, rgba(13, 22, 40, 0.8) 50%, #070B14 100%)',
-          opacity: 0.2,
-          transition: 'opacity 0.5s ease',
+          background: 'radial-gradient(circle at center, rgba(10, 20, 42, 0.75) 0%, rgba(2, 4, 10, 0.98) 85%)',
           pointerEvents: 'none'
         }}
       />
 
-      {/* Central Radiant Warm Light Flare */}
+      {/* Central Radiant Warm Light Flare for the burst */}
       <div
         ref={lightGlowRef}
         style={{
           position: 'absolute',
-          top: '40%',
+          top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '320px',
-          height: '320px',
+          width: '400px',
+          height: '400px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 230, 150, 0.85) 0%, rgba(212, 175, 55, 0.35) 45%, transparent 70%)',
-          filter: 'blur(30px)',
+          background: 'radial-gradient(circle, rgba(255, 238, 175, 0.95) 0%, rgba(229, 193, 88, 0.55) 40%, transparent 70%)',
+          filter: 'blur(35px)',
           opacity: 0.3,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          zIndex: 2
         }}
       />
 
-      {/* 3D Gate Wrapper */}
+      {/* 3D Gate Wrapper Frame (Proportionally centered on all screen sizes) */}
       <div
         style={{
           position: 'relative',
-          width: '100%',
-          maxWidth: '560px',
+          width: 'min(100vw, calc(100dvh * 9 / 16))',
           height: '100dvh',
           display: 'flex',
-          transformStyle: 'preserve-3d'
+          transformStyle: 'preserve-3d',
+          overflow: 'hidden',
+          boxShadow: '0 0 70px rgba(0, 0, 0, 0.95), 0 0 30px rgba(212, 175, 55, 0.15)',
+          zIndex: 5
         }}
       >
-        {/* Left Gate Door */}
+        {/* Left Gate Door Panel */}
         <div
           ref={leftDoorRef}
           style={{
-            flex: 1,
+            width: '50%',
             height: '100%',
             transformOrigin: 'left center',
-            background: 'linear-gradient(135deg, #121A2C 0%, #0A0F1D 50%, #151D2E 100%)',
-            borderRight: '1px solid rgba(212, 175, 55, 0.6)',
-            boxShadow: 'inset -8px 0 25px rgba(0,0,0,0.8), 5px 0 15px rgba(0,0,0,0.6)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '24px 16px',
+            backgroundImage: 'url(/door_gate.jpg)',
+            backgroundSize: '200% 100%',
+            backgroundPosition: '0% center',
+            backgroundRepeat: 'no-repeat',
             position: 'relative',
-            overflow: 'hidden'
+            borderRight: '1px solid rgba(255, 225, 130, 0.6)',
+            boxShadow: 'inset -8px 0 25px rgba(0,0,0,0.85), 4px 0 16px rgba(0,0,0,0.7)',
+            willChange: 'transform, opacity'
           }}
         >
-          {/* Ornate Gold Filigree Pattern Left */}
-          <div style={{ position: 'absolute', inset: '12px', border: '1px solid rgba(212, 175, 55, 0.4)', borderRadius: '16px 0 0 16px', pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', inset: '8px', border: '1px dashed rgba(212, 175, 55, 0.25)', borderRadius: '12px 0 0 12px' }} />
-          </div>
+          {/* Subtle warm animated candle glow over left lantern */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '5.5%',
+              left: '6%',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 220, 50, 0.7) 0%, rgba(245, 158, 11, 0.35) 50%, transparent 75%)',
+              filter: 'blur(5px)',
+              pointerEvents: 'none',
+              animation: 'candleFlickerLeft 2.2s infinite ease-in-out'
+            }}
+          />
 
-          <svg className="w-full h-full" style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }} viewBox="0 0 300 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Royal Arch Left */}
-            <path d="M0 40 Q150 40 280 160 V760 Q150 760 0 760" stroke="#D4AF37" strokeWidth="1.5" strokeOpacity="0.6" />
-            <circle cx="150" cy="220" r="70" stroke="#D4AF37" strokeWidth="1" strokeDasharray="4 4" />
-            <path d="M150 150 L150 290 M80 220 L220 220" stroke="#D4AF37" strokeWidth="0.8" />
-            <path d="M50 350 C120 380 180 430 280 460" stroke="#D4AF37" strokeWidth="1.2" />
-            <path d="M50 550 C120 580 180 630 280 660" stroke="#D4AF37" strokeWidth="1.2" />
-          </svg>
-
+          {/* Golden floating micro sparkles along left roses */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '12%',
+              left: '12%',
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              background: '#FFF8D6',
+              boxShadow: '0 0 10px #FFD700',
+              animation: 'sparkleFloat 3s infinite ease-in-out'
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '38%',
+              left: '8%',
+              width: '4px',
+              height: '4px',
+              borderRadius: '50%',
+              background: '#FFF8D6',
+              boxShadow: '0 0 8px #FFD700',
+              animation: 'sparkleFloat 2.6s 1s infinite ease-in-out'
+            }}
+          />
         </div>
 
-        {/* Right Gate Door */}
+        {/* Right Gate Door Panel */}
         <div
           ref={rightDoorRef}
           style={{
-            flex: 1,
+            width: '50%',
             height: '100%',
             transformOrigin: 'right center',
-            background: 'linear-gradient(225deg, #121A2C 0%, #0A0F1D 50%, #151D2E 100%)',
-            borderLeft: '1px solid rgba(212, 175, 55, 0.6)',
-            boxShadow: 'inset 8px 0 25px rgba(0,0,0,0.8), -5px 0 15px rgba(0,0,0,0.6)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '24px 16px',
+            backgroundImage: 'url(/door_gate.jpg)',
+            backgroundSize: '200% 100%',
+            backgroundPosition: '100% center',
+            backgroundRepeat: 'no-repeat',
             position: 'relative',
-            overflow: 'hidden'
+            borderLeft: '1px solid rgba(255, 225, 130, 0.6)',
+            boxShadow: 'inset 8px 0 25px rgba(0,0,0,0.85), -4px 0 16px rgba(0,0,0,0.7)',
+            willChange: 'transform, opacity'
           }}
         >
-          {/* Ornate Gold Filigree Pattern Right */}
-          <div style={{ position: 'absolute', inset: '12px', border: '1px solid rgba(212, 175, 55, 0.4)', borderRadius: '0 16px 16px 0', pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', inset: '8px', border: '1px dashed rgba(212, 175, 55, 0.25)', borderRadius: '0 12px 12px 0' }} />
-          </div>
-
-          <svg className="w-full h-full" style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }} viewBox="0 0 300 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Royal Arch Right */}
-            <path d="M300 40 Q150 40 20 160 V760 Q150 760 300 760" stroke="#D4AF37" strokeWidth="1.5" strokeOpacity="0.6" />
-            <circle cx="150" cy="220" r="70" stroke="#D4AF37" strokeWidth="1" strokeDasharray="4 4" />
-            <path d="M150 150 L150 290 M80 220 L220 220" stroke="#D4AF37" strokeWidth="0.8" />
-            <path d="M250 350 C180 380 120 430 20 460" stroke="#D4AF37" strokeWidth="1.2" />
-            <path d="M250 550 C180 580 120 630 20 660" stroke="#D4AF37" strokeWidth="1.2" />
-          </svg>
-        </div>
-
-        {/* Central Satin Ribbon & Ornate Medallion */}
-        <div
-          ref={bowContainerRef}
-          style={{
-            position: 'absolute',
-            top: '46%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            zIndex: 10,
-            cursor: 'pointer'
-          }}
-        >
-          {/* Realistic Royal Gold Satin Bow & Seal */}
+          {/* Subtle warm animated candle glow over right lantern */}
           <div
             style={{
-              position: 'relative',
-              width: '120px',
-              height: '120px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              position: 'absolute',
+              bottom: '5.5%',
+              right: '6%',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 220, 50, 0.7) 0%, rgba(245, 158, 11, 0.35) 50%, transparent 75%)',
+              filter: 'blur(5px)',
+              pointerEvents: 'none',
+              animation: 'candleFlickerRight 2.5s 0.5s infinite ease-in-out'
             }}
-          >
-            {/* Satin Ribbon Loops */}
-            <div
-              style={{
-                position: 'absolute',
-                width: '140px',
-                height: '42px',
-                background: 'linear-gradient(135deg, #FDE68A 0%, #D4AF37 40%, #8B6514 80%, #F59E0B 100%)',
-                borderRadius: '50px',
-                transform: 'rotate(-25deg)',
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6)'
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                width: '140px',
-                height: '42px',
-                background: 'linear-gradient(225deg, #FDE68A 0%, #D4AF37 40%, #8B6514 80%, #F59E0B 100%)',
-                borderRadius: '50px',
-                transform: 'rotate(25deg)',
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6)'
-              }}
-            />
+          />
 
-            {/* Hanging Satin Ribbon Tails */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '55px',
-                left: '25px',
-                width: '28px',
-                height: '75px',
-                background: 'linear-gradient(180deg, #D4AF37 0%, #A47716 70%, #684807 100%)',
-                clipPath: 'polygon(0% 0%, 100% 0%, 80% 100%, 0% 85%)',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                top: '55px',
-                right: '25px',
-                width: '28px',
-                height: '75px',
-                background: 'linear-gradient(180deg, #D4AF37 0%, #A47716 70%, #684807 100%)',
-                clipPath: 'polygon(0% 0%, 100% 0%, 100% 85%, 20% 100%)',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
-              }}
-            />
-
-            {/* Center Royal Wax / Gold Seal Knot */}
-            <div
-              style={{
-                position: 'relative',
-                zIndex: 3,
-                width: '68px',
-                height: '68px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle at 35% 35%, #FFF6D0 0%, #D4AF37 40%, #7D5710 100%)',
-                boxShadow: '0 0 20px rgba(212, 175, 55, 0.7), 0 8px 16px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8)',
-                border: '2px solid #FFF1A8',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                animation: 'pulseGlow 2.5s infinite alternate'
-              }}
-            >
-              <span style={{ fontFamily: 'var(--font-serif-title)', fontSize: '1.25rem', fontWeight: 900, color: '#2B1A00' }}>
-                I&A
-              </span>
-            </div>
-          </div>
+          {/* Golden floating micro sparkles along right roses */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '10%',
+              right: '12%',
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              background: '#FFF8D6',
+              boxShadow: '0 0 10px #FFD700',
+              animation: 'sparkleFloat 3.2s 0.5s infinite ease-in-out'
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '40%',
+              right: '8%',
+              width: '4px',
+              height: '4px',
+              borderRadius: '50%',
+              background: '#FFF8D6',
+              boxShadow: '0 0 8px #FFD700',
+              animation: 'sparkleFloat 2.8s 1.4s infinite ease-in-out'
+            }}
+          />
         </div>
 
-        {/* Tap to Open Prompt */}
+        {/* Dynamic Center Light Seam between doors */}
         <div
-          ref={promptRef}
+          ref={centerBeamRef}
           style={{
             position: 'absolute',
-            bottom: '12%',
+            top: 0,
+            bottom: 0,
             left: '50%',
             transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            zIndex: 15,
-            pointerEvents: 'none'
+            width: '4px',
+            background: 'linear-gradient(180deg, transparent 0%, #FFF8D6 18%, #F5D061 50%, #FFF8D6 82%, transparent 100%)',
+            boxShadow: '0 0 14px rgba(255, 225, 120, 0.95), 0 0 28px rgba(212, 175, 55, 0.65)',
+            zIndex: 10,
+            pointerEvents: 'none',
+            animation: 'beamPulse 2.8s infinite alternate ease-in-out'
           }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 24px',
-              borderRadius: '9999px',
-              background: 'rgba(14, 21, 37, 0.85)',
-              border: '1px solid rgba(212, 175, 55, 0.5)',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.25)',
-              animation: 'bounceSoft 2s infinite ease-in-out'
-            }}
-          >
-            <Sparkles size={16} color="#D4AF37" />
-            <span
-              style={{
-                fontFamily: 'var(--font-serif-sub)',
-                fontSize: '0.9rem',
-                letterSpacing: '0.15em',
-                color: '#FFF6D0',
-                textTransform: 'uppercase',
-                fontWeight: 600
-              }}
-            >
-              Tap to Open
-            </span>
-            <Sparkles size={16} color="#D4AF37" />
-          </div>
+        />
 
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', letterSpacing: '0.05em' }}>
-            Touch anywhere to unlock the invitation
-          </p>
-        </div>
+        {/* Pulsing Highlight Aura over the Tap to Open pill */}
+        <div
+          ref={promptBadgeRef}
+          style={{
+            position: 'absolute',
+            top: '63%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '260px',
+            height: '75px',
+            borderRadius: '9999px',
+            background: 'radial-gradient(ellipse at center, rgba(255, 225, 130, 0.22) 0%, transparent 70%)',
+            pointerEvents: 'none',
+            zIndex: 20,
+            animation: 'auraPulse 2.4s infinite ease-in-out'
+          }}
+        />
       </div>
 
+      {/* Global Embedded Styles for Animations */}
       <style>{`
-        @keyframes pulseGlow {
-          0% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 0 6px 12px rgba(0,0,0,0.5); }
-          100% { box-shadow: 0 0 35px rgba(255, 230, 150, 0.9), 0 8px 20px rgba(0,0,0,0.7); }
+        @keyframes candleFlickerLeft {
+          0%, 100% { opacity: 0.75; transform: scale(1); }
+          30% { opacity: 0.95; transform: scale(1.15); }
+          70% { opacity: 0.6; transform: scale(0.92); }
         }
-        @keyframes bounceSoft {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+        @keyframes candleFlickerRight {
+          0%, 100% { opacity: 0.7; transform: scale(0.95); }
+          40% { opacity: 0.98; transform: scale(1.18); }
+          80% { opacity: 0.55; transform: scale(0.9); }
+        }
+        @keyframes beamPulse {
+          0% { opacity: 0.65; filter: blur(0.5px); }
+          100% { opacity: 1; filter: blur(1.5px); }
+        }
+        @keyframes auraPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.35; }
+          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+        @keyframes sparkleFloat {
+          0%, 100% { transform: translateY(0) scale(0.8); opacity: 0.3; }
+          50% { transform: translateY(-8px) scale(1.3); opacity: 1; }
         }
       `}</style>
     </div>
