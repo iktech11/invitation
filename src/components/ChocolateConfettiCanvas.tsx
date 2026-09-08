@@ -104,14 +104,14 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
       };
     };
 
-    // 1. Massive initial burst wave on scratch! (160+ particles showering down together)
-    const initialBurstCount = 175;
+    // 1. Massive 2X initial burst wave on scratch! (350 particles showering down together)
+    const initialBurstCount = 350;
     particlesRef.current = [];
     intensityRef.current = 1.0;
 
     for (let i = 0; i < initialBurstCount; i++) {
-      // Stagger burst from upper third downwards so screen fills with a grand cascade
-      const startY = Math.random() * (height * 0.45) - 30;
+      // Stagger burst from upper area downwards so screen fills with a lush royal cascade
+      const startY = Math.random() * (height * 0.6) - 40;
       particlesRef.current.push(createParticle(startY, true));
     }
 
@@ -141,29 +141,28 @@ export const ChocolateConfettiCanvas: React.FC<ChocolateConfettiCanvasProps> = (
       ctx.clearRect(0, 0, width, height);
       time += 0.025;
 
-      // Smoothly taper off intensity over time (grand burst -> gradually fewer particles)
-      if (intensityRef.current > 0.22) {
-        intensityRef.current *= 0.994; // gradual decay
+      // Smoothly taper off intensity over time with high persistent richness
+      if (intensityRef.current > 0.35) {
+        intensityRef.current *= 0.996; // gentle decay
       }
 
       const particles = particlesRef.current;
-      const targetActiveCount = Math.max(30, Math.floor(initialBurstCount * intensityRef.current));
+      const targetActiveCount = Math.max(80, Math.floor(initialBurstCount * intensityRef.current));
 
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
 
         p.y += p.speedY;
-        p.x += Math.sin(time + p.swingOffset) * (0.8 + intensityRef.current * 0.4) + p.speedX;
+        p.x += Math.sin(time + p.swingOffset) * (0.8 + intensityRef.current * 0.5) + p.speedX;
         p.angle += p.angularSpeed;
 
         // When particle falls below countdown boundary
         if (p.y > height + 25) {
-          // If we have more than current target intensity, remove extra particles to create the "thoda kam fir kam" effect
           if (particles.length > targetActiveCount) {
             particles.splice(i, 1);
             continue;
           } else {
-            // Respawn at top with gentler speed as intensity decreases
+            // Respawn at top with gentler speed
             particles[i] = createParticle(-20, false);
           }
         }

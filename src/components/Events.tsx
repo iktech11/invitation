@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Music, Flame, Crown, Clock, MapPin, Shirt } from 'lucide-react';
+import { Sparkles, Music, Flame, Crown, Heart, Clock, MapPin, Shirt } from 'lucide-react';
 import { weddingData, EventDetails } from '../data/invitation';
 
 export const Events: React.FC = () => {
@@ -13,6 +13,8 @@ export const Events: React.FC = () => {
         return <Flame size={24} color="#D4AF37" />;
       case 'Crown':
         return <Crown size={24} color="#D4AF37" />;
+      case 'Heart':
+        return <Heart size={24} color="#D4AF37" />;
       default:
         return <Sparkles size={24} color="#D4AF37" />;
     }
@@ -44,7 +46,7 @@ export const Events: React.FC = () => {
             margin: '0 auto'
           }}
         >
-          Four enchanting gatherings filled with traditions, music, sacred rites, and royal splendor.
+          Five enchanting gatherings filled with traditions, music, sacred rites, and royal splendor.
         </p>
       </div>
 

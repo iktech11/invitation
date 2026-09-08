@@ -148,10 +148,22 @@ export const weddingData: WeddingInvitationData = {
       date: "November 22, 2026",
       day: "Sunday",
       time: "11:30 AM onwards",
-      venue: "Gayatri Main Lawns",
+      venue: "Gayatri Lawns",
       description: "",
       dressCode: "Royal Traditional / Formal Festive",
       iconName: "Crown"
+    },
+    {
+      id: "reception",
+      title: "Reception",
+      subTitle: "",
+      date: "November 24, 2026",
+      day: "Tuesday",
+      time: "06:00 PM onwards",
+      venue: "Rutba Function Hall",
+      description: "",
+      dressCode: "Festive Elegance",
+      iconName: "Heart"
     }
   ],
   story: [

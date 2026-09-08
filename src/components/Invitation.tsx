@@ -24,45 +24,74 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = (canvas.width = canvas.offsetWidth || 340);
-    const height = (canvas.height = canvas.offsetHeight || 300);
+    const size = Math.min(canvas.offsetWidth || 270, canvas.offsetHeight || 270) || 270;
+    const width = (canvas.width = size);
+    const height = (canvas.height = size);
 
-    // Draw rich chocolate metallic overlay
+    // Draw rich chocolate metallic circular overlay
     const drawCover = () => {
-      const grad = ctx.createLinearGradient(0, 0, width, height);
-      grad.addColorStop(0, '#5C311E');
-      grad.addColorStop(0.35, '#783E28');
-      grad.addColorStop(0.7, '#4A2514');
-      grad.addColorStop(1, '#3B1C0E');
+      ctx.clearRect(0, 0, width, height);
+
+      // Circular clip path for smooth rendering
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2);
+      ctx.clip();
+
+      const grad = ctx.createRadialGradient(width / 2, height / 2, 10, width / 2, height / 2, width / 2);
+      grad.addColorStop(0, '#6A3720');
+      grad.addColorStop(0.5, '#4E2413');
+      grad.addColorStop(1, '#33150A');
 
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
-      // Gold shimmer border inside
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, width - 20, height - 20);
+      // Gold outer ring
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, width / 2 - 8, 0, Math.PI * 2);
+      ctx.stroke();
 
-      // Golden foil decorative stars
-      ctx.fillStyle = 'rgba(251, 240, 185, 0.3)';
+      // Delicate inner dotted ring
+      ctx.strokeStyle = 'rgba(251, 240, 185, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, width / 2 - 16, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Golden foil decorative stars within circular bounds
+      ctx.fillStyle = 'rgba(251, 240, 185, 0.45)';
       for (let i = 0; i < 35; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        const r = Math.random() * 2 + 1;
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (width / 2 - 25);
+        const x = width / 2 + Math.cos(angle) * dist;
+        const y = height / 2 + Math.sin(angle) * dist;
+        const r = Math.random() * 2 + 0.8;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
       }
 
+      // Center Circular Medallion Accent
+      ctx.fillStyle = 'rgba(212, 175, 55, 0.12)';
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, 48, 0, Math.PI * 2);
+      ctx.fill();
+
       // Chocolate Seal Text
-      ctx.fillStyle = '#FFF2D6';
-      ctx.font = 'bold 15px Montserrat, sans-serif';
+      ctx.fillStyle = '#FFF8EB';
+      ctx.font = 'bold 13px Montserrat, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('✨ SCRATCH HERE ✨', width / 2, height / 2 - 12);
+      ctx.fillText('✨ SCRATCH HERE ✨', width / 2, height / 2 - 10);
 
       ctx.fillStyle = '#E5C158';
-      ctx.font = 'italic 13px Cormorant Garamond, serif';
-      ctx.fillText('Rub with finger or mouse to reveal', width / 2, height / 2 + 14);
+      ctx.font = 'italic 12px Cormorant Garamond, serif';
+      ctx.fillText('Rub with finger to reveal', width / 2, height / 2 + 12);
+
+      ctx.restore();
     };
 
     drawCover();
@@ -280,35 +309,36 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
           <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, #B88568, transparent)' }} />
         </div>
 
-        {/* Luxury Heart-Shaped Card with Interactive Chocolate Scratch */}
+        {/* Luxury Circular Card with Interactive Chocolate Scratch */}
         <div
           className="reveal-on-scroll reveal-scale delay-250"
           style={{
             position: 'relative',
-            width: '100%',
-            maxWidth: '340px',
-            minHeight: '290px',
+            width: '260px',
+            height: '260px',
             margin: '0 auto 1.75rem',
             background: 'linear-gradient(145deg, #FFFDF9 0%, #FAF3EB 100%)',
-            border: '2px solid #C89A7A',
-            borderRadius: '42px',
-            boxShadow: '0 16px 40px rgba(112, 62, 45, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.8)',
+            border: '2.5px solid #C89A7A',
+            borderRadius: '50%',
+            boxShadow: '0 16px 40px rgba(112, 62, 45, 0.18), inset 0 0 24px rgba(255, 255, 255, 0.9)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem 1.25rem',
+            padding: '1.25rem',
             overflow: 'hidden',
+            boxSizing: 'border-box',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}
         >
-          {/* Inner Heart Content */}
+          {/* Inner Circular Content */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              textAlign: 'center',
               zIndex: 1
             }}
           >
@@ -316,9 +346,9 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
               style={{
                 fontFamily: 'var(--font-serif-body)',
                 fontStyle: 'italic',
-                fontSize: '1.45rem',
+                fontSize: '1.15rem',
                 color: '#8C5A40',
-                marginBottom: '0.6rem'
+                marginBottom: '0.35rem'
               }}
             >
               You're Invited!
@@ -327,12 +357,12 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
             <h3
               style={{
                 fontFamily: 'var(--font-serif-title)',
-                fontSize: '1.75rem',
+                fontSize: '1.35rem',
                 fontWeight: 800,
                 color: '#382318',
-                letterSpacing: '0.04em',
+                letterSpacing: '0.03em',
                 lineHeight: 1.2,
-                marginBottom: '0.35rem'
+                marginBottom: '0.25rem'
               }}
             >
               {weddingData.weddingDate.displayDate}
@@ -341,12 +371,12 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
             <p
               style={{
                 fontFamily: 'var(--font-serif-sub)',
-                fontSize: '1.05rem',
+                fontSize: '0.85rem',
                 fontWeight: 600,
                 color: '#703E2D',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                marginBottom: '0.6rem'
+                marginBottom: '0.35rem'
               }}
             >
               {weddingData.weddingDate.dayOfWeek}
@@ -355,10 +385,10 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
             <p
               style={{
                 fontFamily: 'var(--font-serif-body)',
-                fontSize: '1.15rem',
+                fontSize: '0.98rem',
                 fontWeight: 700,
                 color: '#523122',
-                letterSpacing: '0.06em'
+                letterSpacing: '0.04em'
               }}
             >
               {weddingData.weddingDate.time}
@@ -383,7 +413,7 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
                 zIndex: 4,
                 cursor: 'grab',
                 touchAction: 'none',
-                borderRadius: '40px',
+                borderRadius: '50%',
                 transition: 'opacity 0.4s ease'
               }}
             />
@@ -395,18 +425,20 @@ export const Invitation: React.FC<InvitationProps> = ({ onScratchStart }) => {
               onClick={revealAll}
               style={{
                 position: 'absolute',
-                bottom: '10px',
-                right: '12px',
+                bottom: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
                 zIndex: 5,
-                background: 'rgba(255, 255, 255, 0.88)',
+                background: 'rgba(255, 255, 255, 0.92)',
                 border: '1px solid #703E2D',
                 borderRadius: '9999px',
-                padding: '3px 10px',
-                fontSize: '0.68rem',
+                padding: '3px 12px',
+                fontSize: '0.65rem',
                 fontWeight: 600,
                 color: '#703E2D',
                 cursor: 'pointer',
-                backdropFilter: 'blur(4px)'
+                backdropFilter: 'blur(4px)',
+                whiteSpace: 'nowrap'
               }}
             >
               Reveal ✨
