@@ -68,6 +68,8 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
     }, '-=0.4');
   };
 
+  const doorGateImg = `${import.meta.env.BASE_URL}door_gate.jpg`;
+
   return (
     <div
       ref={containerRef}
@@ -141,7 +143,7 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
             width: '50%',
             height: '100%',
             transformOrigin: 'left center',
-            backgroundImage: 'url(/door_gate.jpg)',
+            backgroundImage: `url(${doorGateImg})`,
             backgroundSize: '200% 100%',
             backgroundPosition: '0% center',
             backgroundRepeat: 'no-repeat',
@@ -203,7 +205,7 @@ export const OpeningGate: React.FC<OpeningGateProps> = ({ onOpenComplete }) => {
             width: '50%',
             height: '100%',
             transformOrigin: 'right center',
-            backgroundImage: 'url(/door_gate.jpg)',
+            backgroundImage: `url(${doorGateImg})`,
             backgroundSize: '200% 100%',
             backgroundPosition: '100% center',
             backgroundRepeat: 'no-repeat',
